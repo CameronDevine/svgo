@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	width, height := 600, 600
-	rsize := 20
+	width, height := 600., 600.
+	rsize := 20.
 	csize := rsize / 2
 	duration := 5.0
 	repeat := 10

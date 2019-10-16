@@ -11,16 +11,16 @@ import (
 )
 
 var (
-	width  = 500
-	height = 500
+	width  = 500.
+	height = 500.
 	canvas = svg.New(os.Stdout)
 )
 
 const androidcolor = "rgb(164,198,57)"
 
-func background(v int) { canvas.Rect(0, 0, width, height, canvas.RGB(v, v, v)) }
+func background(v float64) { canvas.Rect(0, 0, width, height, canvas.RGB(v, v, v)) }
 
-func android(x, y int, fill string, opacity float64) {
+func android(x, y float64, fill string, opacity float64) {
 	var linestyle = []string{`stroke="` + fill + `"`, `stroke-linecap="round"`, `stroke-width="5"`}
 	globalstyle := fmt.Sprintf("fill:%s;opacity:%.2f", fill, opacity)
 	canvas.Gstyle(globalstyle)

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	canvas := svg.New(os.Stdout)
-	width, height := 500, 500
+	width, height := 500., 500.
 	duration, repeat := 1.0, 0
 
 	canvas.Start(width, height)

@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	width, height := 500, 500
+	width, height := 500., 500.
 	rsize := 100
 	csize := rsize / 2
 	duration := 5.0

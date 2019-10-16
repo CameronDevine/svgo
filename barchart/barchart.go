@@ -15,9 +15,10 @@ import (
 )
 
 var (
-	width, height, fontsize, barheight, gutter, cornerRadius, labelimit int
+	labelimit int
 	bgcolor, barcolor, title, inbar, valformat                          string
 	showtitle, showdata, showgrid, showscale, endtitle, trace, stick    bool
+	width, cornerRadius, barheight, gutter, fontsize, height float64
 )
 
 const (
@@ -43,9 +44,9 @@ const (
 // </barchart>
 
 type Barchart struct {
-	Top   int     `xml:"top,attr"`
-	Left  int     `xml:"left,attr"`
-	Right int     `xml:"right,attr"`
+	Top   float64     `xml:"top,attr"`
+	Left  float64     `xml:"left,attr"`
+	Right float64     `xml:"right,attr"`
 	Title string  `xml:"title,attr"`
 	Bdata []bdata `xml:"bdata"`
 	Note  []note  `xml:"note"`
@@ -125,12 +126,12 @@ func drawbc(bg Barchart, canvas *svg.SVG) {
 	if len(title) > 0 {
 		bg.Title = title
 	}
-	labelimit = bg.Left / 8
+	labelimit = int(bg.Left / 8)
 	cr := cornerRadius
 	maxwidth := width - (bg.Left + bg.Right)
 	x := bg.Left
 	y := bg.Top
-	sep := 10
+	sep := 10.
 	color := barcolor
 	scfmt := "%v"
 	canvas.Title(bg.Title)
@@ -203,15 +204,15 @@ func drawbc(bg Barchart, canvas *svg.SVG) {
 			for ns, sd := range stackdata {
 				dw := vmap(sd, scalemin, scalemax, 0, float64(maxwidth))
 				if len(stack.Color) > 0 {
-					canvas.Roundrect(sx, y, int(dw), barheight, cr, cr, fmt.Sprintf("fill:%s;fill-opacity:%.2f", stack.Color, barop[ns]))
+					canvas.Roundrect(sx, y, dw, barheight, cr, cr, fmt.Sprintf("fill:%s;fill-opacity:%.2f", stack.Color, barop[ns]))
 				} else {
-					canvas.Roundrect(sx, y, int(dw), barheight, cr, cr, fmt.Sprintf("fill-opacity:%.2f", barop[ns]))
+					canvas.Roundrect(sx, y, dw, barheight, cr, cr, fmt.Sprintf("fill-opacity:%.2f", barop[ns]))
 				}
 
 				if (showdata || b.Showdata) && sd > 0 {
 					var valuestyle = "fill-opacity:1;font-style:italic;font-size:75%;text-anchor:middle;baseline-shift:-25%;"
 					var ditem string
-					var datax int
+					var datax float64
 					if len(b.Unit) > 0 {
 						ditem = fmt.Sprintf(valformat+"%s", sd, b.Unit)
 					} else {
@@ -222,10 +223,10 @@ func drawbc(bg Barchart, canvas *svg.SVG) {
 					} else {
 						valuestyle += "fill:black"
 					}
-					datax = sx + int(dw)/2
+					datax = sx + dw/2
 					canvas.Text(datax, y+barheight/2, ditem, valuestyle)
 				}
-				sx += int(dw)
+				sx += dw
 			}
 			y += barheight + gutter
 		}
@@ -245,15 +246,15 @@ func drawbc(bg Barchart, canvas *svg.SVG) {
 			}
 
 			if stick {
-				makestick(x, y, int(dw), d.Color, canvas)
+				makestick(x, y, dw, d.Color, canvas)
 			} else {
-				makebar(x, y, int(dw), barheight, cr, d.Color, barop, canvas)
+				makebar(x, y, dw, barheight, cr, d.Color, barop, canvas)
 			}
 
 			if showdata || b.Showdata {
 				var valuestyle = "fill-opacity:1;font-style:italic;font-size:75%;text-anchor:start;baseline-shift:-25%;"
 				var ditem string
-				var datax int
+				var datax float64
 				if len(b.Unit) > 0 {
 					ditem = fmt.Sprintf(valformat+"%s", d.Value, b.Unit)
 				} else {
@@ -264,7 +265,7 @@ func drawbc(bg Barchart, canvas *svg.SVG) {
 					datax = x + fontsize/2
 				} else {
 					valuestyle += "fill:black"
-					datax = x + int(dw) + fontsize/2
+					datax = x + dw + fontsize/2
 				}
 				canvas.Text(datax, y+barheight/2, ditem, valuestyle)
 			}
@@ -293,9 +294,9 @@ func drawbc(bg Barchart, canvas *svg.SVG) {
 			if scaleincr > 0 && scalemin < scalemax {
 				for sc := scalemin; sc <= scalemax; sc += scaleincr {
 					scx := vmap(sc, scalemin, scalemax, 0, float64(maxwidth))
-					canvas.Text(x+int(scx), chartbot+fontsize, fmt.Sprintf(scfmt, sc))
+					canvas.Text(x+scx, chartbot+fontsize, fmt.Sprintf(scfmt, sc))
 					if showgrid || b.Showgrid {
-						canvas.Line(x+int(scx), chartbot, x+int(scx), chartop, borderstyle) // grid line
+						canvas.Line(x+scx, chartbot, x+scx, chartop, borderstyle) // grid line
 					}
 				}
 			}
@@ -306,7 +307,7 @@ func drawbc(bg Barchart, canvas *svg.SVG) {
 		if len(b.Note) > 0 {
 			canvas.Gstyle(notestyle + anchor())
 			y += fontsize * 2
-			leading := 3
+			leading := 3.
 			for _, note := range b.Note {
 				canvas.Text(bg.Left, y, note.Text)
 				y += fontsize + leading
@@ -324,7 +325,7 @@ func drawbc(bg Barchart, canvas *svg.SVG) {
 	if len(bg.Note) > 0 {
 		canvas.Gstyle(notestyle + anchor())
 		y += fontsize * 2
-		leading := 3
+		leading := 3.
 		for _, note := range bg.Note {
 			canvas.Text(bg.Left, y, note.Text)
 			y += fontsize + leading
@@ -334,7 +335,7 @@ func drawbc(bg Barchart, canvas *svg.SVG) {
 }
 
 // nakebar draws the rectangle to represent the value
-func makebar(x, y, w, h, radius int, color string, op float64, canvas *svg.SVG) {
+func makebar(x, y, w, h, radius float64, color string, op float64, canvas *svg.SVG) {
 	if len(color) > 0 {
 		canvas.Roundrect(x, y, w, h, radius, radius, fmt.Sprintf("fill:%s;fill-opacity:%.2f", color, op))
 	} else {
@@ -343,7 +344,7 @@ func makebar(x, y, w, h, radius int, color string, op float64, canvas *svg.SVG) 
 }
 
 // makestick draws a dotted line ending with a circle to represent the value
-func makestick(x, y, w int, color string, canvas *svg.SVG) {
+func makestick(x, y, w float64, color string, canvas *svg.SVG) {
 	y += fontsize * 60 / 100
 	canvas.Line(x, y, x+w, y, "stroke-width:2;stroke-dasharray:3;stroke:rgb(170,170,170)")
 	if len(color) > 0 {
@@ -485,12 +486,12 @@ func init() {
 	flag.StringVar(&bgcolor, "bg", "white", "background color")
 	flag.StringVar(&barcolor, "bc", "rgb(200,200,200)", "bar color")
 	flag.StringVar(&valformat, "vfmt", "%v", "value format")
-	flag.IntVar(&width, "w", 1024, "width")
-	flag.IntVar(&height, "h", 800, "height")
-	flag.IntVar(&barheight, "bh", 20, "bar height")
-	flag.IntVar(&gutter, "g", 5, "gutter")
-	flag.IntVar(&cornerRadius, "cr", 0, "corner radius")
-	flag.IntVar(&fontsize, "f", 18, "fontsize (px)")
+	flag.Float64Var(&width, "w", 1024, "width")
+	flag.Float64Var(&height, "h", 800, "height")
+	flag.Float64Var(&barheight, "bh", 20, "bar height")
+	flag.Float64Var(&gutter, "g", 5, "gutter")
+	flag.Float64Var(&cornerRadius, "cr", 0, "corner radius")
+	flag.Float64Var(&fontsize, "f", 18, "fontsize (px)")
 	flag.BoolVar(&showscale, "showscale", false, "show scale")
 	flag.BoolVar(&showgrid, "showgrid", false, "show grid")
 	flag.BoolVar(&showdata, "showdata", true, "show data values")
