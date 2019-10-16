@@ -38,7 +38,7 @@ type SVG struct {
 
 // Offcolor defines the offset and color for gradients
 type Offcolor struct {
-	Offset  float32
+	Offset  float64
 	Color   string
 	Opacity float64
 }
@@ -88,33 +88,33 @@ func (svg *SVG) genattr(ns []string) {
 // Start begins the SVG document with the width w and height h.
 // Other attributes may be optionally added, for example viewbox or additional namespaces
 // Standard Reference: http://www.w3.org/TR/SVG11/struct.html#SVGElement
-func (svg *SVG) Start(w float32, h float32, ns ...string) {
+func (svg *SVG) Start(w float64, h float64, ns ...string) {
 	svg.printf(svginitfmt, svgtop, w, "", h, "")
 	svg.genattr(ns)
 }
 
 // Startunit begins the SVG document, with width and height in the specified units
 // Other attributes may be optionally added, for example viewbox or additional namespaces
-func (svg *SVG) Startunit(w float32, h float32, unit string, ns ...string) {
+func (svg *SVG) Startunit(w float64, h float64, unit string, ns ...string) {
 	svg.printf(svginitfmt, svgtop, w, unit, h, unit)
 	svg.genattr(ns)
 }
 
 // Startpercent begins the SVG document, with width and height as percentages
 // Other attributes may be optionally added, for example viewbox or additional namespaces
-func (svg *SVG) Startpercent(w float32, h float32, ns ...string) {
+func (svg *SVG) Startpercent(w float64, h float64, ns ...string) {
 	svg.printf(svginitfmt, svgtop, w, "%", h, "%")
 	svg.genattr(ns)
 }
 
 // Startview begins the SVG document, with the specified width, height, and viewbox
 // Other attributes may be optionally added, for example viewbox or additional namespaces
-func (svg *SVG) Startview(w, h, minx, miny, vw, vh float32) {
+func (svg *SVG) Startview(w, h, minx, miny, vw, vh float64) {
 	svg.Start(w, h, fmt.Sprintf(vbfmt, minx, miny, vw, vh))
 }
 
 // StartviewUnit begins the SVG document with the specified width, height, and unit
-func (svg *SVG) StartviewUnit(w, h float32, unit string, minx, miny, vw, vh float32) {
+func (svg *SVG) StartviewUnit(w, h float64, unit string, minx, miny, vw, vh float64) {
 	svg.Startunit(w, h, unit, fmt.Sprintf(vbfmt, minx, miny, vw, vh))
 }
 
@@ -170,7 +170,7 @@ func (svg *SVG) Gtransform(s string) { svg.println(group("transform", s)) }
 
 // Translate begins coordinate translation, end with Gend()
 // Standard Reference: http://www.w3.org/TR/SVG11/coords.html#TransformAttribute
-func (svg *SVG) Translate(x, y float32) { svg.Gtransform(translate(x, y)) }
+func (svg *SVG) Translate(x, y float64) { svg.Gtransform(translate(x, y)) }
 
 // Scale scales the coordinate system by n, end with Gend()
 // Standard Reference: http://www.w3.org/TR/SVG11/coords.html#TransformAttribute
@@ -197,12 +197,12 @@ func (svg *SVG) SkewXY(ax, ay float64) { svg.Gtransform(skewX(ax) + " " + skewY(
 func (svg *SVG) Rotate(r float64) { svg.Gtransform(rotate(r)) }
 
 // TranslateRotate translates the coordinate system to (x,y), then rotates to r degrees, end with Gend()
-func (svg *SVG) TranslateRotate(x, y float32, r float64) {
+func (svg *SVG) TranslateRotate(x, y float64, r float64) {
 	svg.Gtransform(translate(x, y) + " " + rotate(r))
 }
 
 // RotateTranslate rotates the coordinate system r degrees, then translates to (x,y), end with Gend()
-func (svg *SVG) RotateTranslate(x, y float32, r float64) {
+func (svg *SVG) RotateTranslate(x, y float64, r float64) {
 	svg.Gtransform(rotate(r) + " " + translate(x, y))
 }
 
@@ -236,7 +236,7 @@ func (svg *SVG) DefEnd() { svg.println(`</defs>`) }
 
 // Marker defines a marker
 // Standard reference: http://www.w3.org/TR/SVG11/painting.html#MarkerElement
-func (svg *SVG) Marker(id string, x, y, width, height float32, s ...string) {
+func (svg *SVG) Marker(id string, x, y, width, height float64, s ...string) {
 	svg.printf(`<marker id="%s" refX="%f" refY="%f" markerWidth="%f" markerHeight="%f" %s`,
 		id, x, y, width, height, endstyle(s, ">\n"))
 }
@@ -248,7 +248,7 @@ func (svg *SVG) MarkerEnd() { svg.println(`</marker>`) }
 // The putype can be either "user" or "obj", which sets the patternUnits
 // attribute to be either userSpaceOnUse or objectBoundingBox
 // Standard reference: http://www.w3.org/TR/SVG11/pservers.html#Patterns
-func (svg *SVG) Pattern(id string, x, y, width, height float32, putype string, s ...string) {
+func (svg *SVG) Pattern(id string, x, y, width, height float64, putype string, s ...string) {
 	puattr := "userSpaceOnUse"
 	if putype != "user" {
 		puattr = "objectBoundingBox"
@@ -281,12 +281,12 @@ func (svg *SVG) LinkEnd() { svg.println(`</a>`) }
 
 // Use places the object referenced at link at the location x, y, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/struct.html#UseElement
-func (svg *SVG) Use(x float32, y float32, link string, s ...string) {
+func (svg *SVG) Use(x float64, y float64, link string, s ...string) {
 	svg.printf(`<use %s %s %s`, loc(x, y), href(link), endstyle(s, emptyclose))
 }
 
 // Mask creates a mask with a specified id, dimension, and optional style.
-func (svg *SVG) Mask(id string, x float32, y float32, w float32, h float32, s ...string) {
+func (svg *SVG) Mask(id string, x float64, y float64, w float64, h float64, s ...string) {
 	svg.printf(`<mask id="%s" x="%f" y="%f" width="%f" height="%f" %s`, id, x, y, w, h, endstyle(s, `>`))
 }
 
@@ -297,31 +297,31 @@ func (svg *SVG) MaskEnd() { svg.println(`</mask>`) }
 
 // Circle centered at x,y, with radius r, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#CircleElement
-func (svg *SVG) Circle(x float32, y float32, r float32, s ...string) {
+func (svg *SVG) Circle(x float64, y float64, r float64, s ...string) {
 	svg.printf(`<circle cx="%f" cy="%f" r="%f" %s`, x, y, r, endstyle(s, emptyclose))
 }
 
 // Ellipse centered at x,y, centered at x,y with radii w, and h, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#EllipseElement
-func (svg *SVG) Ellipse(x float32, y float32, w float32, h float32, s ...string) {
+func (svg *SVG) Ellipse(x float64, y float64, w float64, h float64, s ...string) {
 	svg.printf(`<ellipse cx="%f" cy="%f" rx="%f" ry="%f" %s`,
 		x, y, w, h, endstyle(s, emptyclose))
 }
 
 // Polygon draws a series of line segments using an array of x, y coordinates, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#PolygonElement
-func (svg *SVG) Polygon(x []float32, y []float32, s ...string) {
+func (svg *SVG) Polygon(x []float64, y []float64, s ...string) {
 	svg.poly(x, y, "polygon", s...)
 }
 
 // Rect draws a rectangle with upper left-hand corner at x,y, with width w, and height h, with optional style
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#RectElement
-func (svg *SVG) Rect(x float32, y float32, w float32, h float32, s ...string) {
+func (svg *SVG) Rect(x float64, y float64, w float64, h float64, s ...string) {
 	svg.printf(`<rect %s %s`, dim(x, y, w, h), endstyle(s, emptyclose))
 }
 
 // CenterRect draws a rectangle with its center at x,y, with width w, and height h, with optional style
-func (svg *SVG) CenterRect(x float32, y float32, w float32, h float32, s ...string) {
+func (svg *SVG) CenterRect(x float64, y float64, w float64, h float64, s ...string) {
 	svg.Rect(x-(w/2), y-(h/2), w, h, s...)
 }
 
@@ -330,12 +330,12 @@ func (svg *SVG) CenterRect(x float32, y float32, w float32, h float32, s ...stri
 // are specified by rx (width), and ry (height).
 // Style is optional.
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#RectElement
-func (svg *SVG) Roundrect(x float32, y float32, w float32, h float32, rx float32, ry float32, s ...string) {
+func (svg *SVG) Roundrect(x float64, y float64, w float64, h float64, rx float64, ry float64, s ...string) {
 	svg.printf(`<rect %s rx="%f" ry="%f" %s`, dim(x, y, w, h), rx, ry, endstyle(s, emptyclose))
 }
 
 // Square draws a square with upper left corner at x,y with sides of length l, with optional style.
-func (svg *SVG) Square(x float32, y float32, l float32, s ...string) {
+func (svg *SVG) Square(x float64, y float64, l float64, s ...string) {
 	svg.Rect(x, y, l, l, s...)
 }
 
@@ -353,7 +353,7 @@ func (svg *SVG) Path(d string, s ...string) {
 // if large is true, the arc sweep angle is greater than or equal to 180 degrees,
 // otherwise the arc sweep is less than 180 degrees
 // http://www.w3.org/TR/SVG11/paths.html#PathDataEllipticalArcCommands
-func (svg *SVG) Arc(sx float32, sy float32, ax float32, ay float32, r float32, large bool, sweep bool, ex float32, ey float32, s ...string) {
+func (svg *SVG) Arc(sx float64, sy float64, ax float64, ay float64, r float64, large bool, sweep bool, ex float64, ey float64, s ...string) {
 	svg.printf(`%s A%s %f %s %s %s" %s`,
 		ptag(sx, sy), coord(ax, ay), r, onezero(large), onezero(sweep), coord(ex, ey), endstyle(s, emptyclose))
 }
@@ -361,7 +361,7 @@ func (svg *SVG) Arc(sx float32, sy float32, ax float32, ay float32, r float32, l
 // Bezier draws a cubic bezier curve, with optional style, beginning at sx,sy, ending at ex,ey
 // with control points at cx,cy and px,py.
 // Standard Reference: http://www.w3.org/TR/SVG11/paths.html#PathDataCubicBezierCommands
-func (svg *SVG) Bezier(sx float32, sy float32, cx float32, cy float32, px float32, py float32, ex float32, ey float32, s ...string) {
+func (svg *SVG) Bezier(sx float64, sy float64, cx float64, cy float64, px float64, py float64, ex float64, ey float64, s ...string) {
 	svg.printf(`%s C%s %s %s" %s`,
 		ptag(sx, sy), coord(cx, cy), coord(px, py), coord(ex, ey), endstyle(s, emptyclose))
 }
@@ -369,7 +369,7 @@ func (svg *SVG) Bezier(sx float32, sy float32, cx float32, cy float32, px float3
 // Qbez draws a quadratic bezier curver, with optional style
 // beginning at sx,sy, ending at ex, sy with control points at cx, cy
 // Standard Reference: http://www.w3.org/TR/SVG11/paths.html#PathDataQuadraticBezierCommands
-func (svg *SVG) Qbez(sx float32, sy float32, cx float32, cy float32, ex float32, ey float32, s ...string) {
+func (svg *SVG) Qbez(sx float64, sy float64, cx float64, cy float64, ex float64, ey float64, s ...string) {
 	svg.printf(`%s Q%s %s" %s`,
 		ptag(sx, sy), coord(cx, cy), coord(ex, ey), endstyle(s, emptyclose))
 }
@@ -377,7 +377,7 @@ func (svg *SVG) Qbez(sx float32, sy float32, cx float32, cy float32, ex float32,
 // Qbezier draws a Quadratic Bezier curve, with optional style, beginning at sx, sy, ending at tx,ty
 // with control points are at cx,cy, ex,ey.
 // Standard Reference: http://www.w3.org/TR/SVG11/paths.html#PathDataQuadraticBezierCommands
-func (svg *SVG) Qbezier(sx float32, sy float32, cx float32, cy float32, ex float32, ey float32, tx float32, ty float32, s ...string) {
+func (svg *SVG) Qbezier(sx float64, sy float64, cx float64, cy float64, ex float64, ey float64, tx float64, ty float64, s ...string) {
 	svg.printf(`%s Q%s %s T%s" %s`,
 		ptag(sx, sy), coord(cx, cy), coord(ex, ey), coord(tx, ty), endstyle(s, emptyclose))
 }
@@ -386,26 +386,26 @@ func (svg *SVG) Qbezier(sx float32, sy float32, cx float32, cy float32, ex float
 
 // Line draws a straight line between two points, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#LineElement
-func (svg *SVG) Line(x1 float32, y1 float32, x2 float32, y2 float32, s ...string) {
+func (svg *SVG) Line(x1 float64, y1 float64, x2 float64, y2 float64, s ...string) {
 	svg.printf(`<line x1="%f" y1="%f" x2="%f" y2="%f" %s`, x1, y1, x2, y2, endstyle(s, emptyclose))
 }
 
 // Polyline draws connected lines between coordinates, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/shapes.html#PolylineElement
-func (svg *SVG) Polyline(x []float32, y []float32, s ...string) {
+func (svg *SVG) Polyline(x []float64, y []float64, s ...string) {
 	svg.poly(x, y, "polyline", s...)
 }
 
 // Image places at x,y (upper left hand corner), the image with
 // width w, and height h, referenced at link, with optional style.
 // Standard Reference: http://www.w3.org/TR/SVG11/struct.html#ImageElement
-func (svg *SVG) Image(x float32, y float32, w float32, h float32, link string, s ...string) {
+func (svg *SVG) Image(x float64, y float64, w float64, h float64, link string, s ...string) {
 	svg.printf(`<image %s %s %s`, dim(x, y, w, h), href(link), endstyle(s, emptyclose))
 }
 
 // Text places the specified text, t at x,y according to the style specified in s
 // Standard Reference: http://www.w3.org/TR/SVG11/text.html#TextElement
-func (svg *SVG) Text(x float32, y float32, t string, s ...string) {
+func (svg *SVG) Text(x float64, y float64, t string, s ...string) {
 	svg.printf(`<text %s %s`, loc(x, y), endstyle(s, ">"))
 	xml.Escape(svg.Writer, []byte(t))
 	svg.println(`</text>`)
@@ -421,7 +421,7 @@ func (svg *SVG) Textpath(t string, pathid string, s ...string) {
 
 // Textlines places a series of lines of text starting at x,y, at the specified size, fill, and alignment.
 // Each line is spaced according to the spacing argument
-func (svg *SVG) Textlines(x, y float32, s []string, size, spacing float32, fill, align string) {
+func (svg *SVG) Textlines(x, y float64, s []string, size, spacing float64, fill, align string) {
 	svg.Gstyle(fmt.Sprintf("font-size:%fpx;fill:%s;text-anchor:%s", size, fill, align))
 	for _, t := range s {
 		svg.Text(x, y, t)
@@ -434,12 +434,12 @@ func (svg *SVG) Textlines(x, y float32, s []string, size, spacing float32, fill,
 
 // RGB specifies a fill color in terms of a (r)ed, (g)reen, (b)lue triple.
 // Standard reference: http://www.w3.org/TR/css3-color/
-func (svg *SVG) RGB(r float32, g float32, b float32) string {
+func (svg *SVG) RGB(r float64, g float64, b float64) string {
 	return fmt.Sprintf(`fill:rgb(%f,%f,%f)`, r, g, b)
 }
 
 // RGBA specifies a fill color in terms of a (r)ed, (g)reen, (b)lue triple and opacity.
-func (svg *SVG) RGBA(r float32, g float32, b float32, a float64) string {
+func (svg *SVG) RGBA(r float64, g float64, b float64, a float64) string {
 	return fmt.Sprintf(`fill-opacity:%.2f; %s`, a, svg.RGB(r, g, b))
 }
 
@@ -448,7 +448,7 @@ func (svg *SVG) RGBA(r float32, g float32, b float32, a float64) string {
 // LinearGradient constructs a linear color gradient identified by id,
 // along the vector defined by (x1,y1), and (x2,y2).
 // The stop color sequence defined in sc. Coordinates are expressed as percentages.
-func (svg *SVG) LinearGradient(id string, x1, y1, x2, y2 float32, sc []Offcolor) {
+func (svg *SVG) LinearGradient(id string, x1, y1, x2, y2 float64, sc []Offcolor) {
 	svg.printf("<linearGradient id=\"%s\" x1=\"%f%%\" y1=\"%f%%\" x2=\"%f%%\" y2=\"%f%%\">\n",
 		id, pct(x1), pct(y1), pct(x2), pct(y2))
 	svg.stopcolor(sc)
@@ -460,7 +460,7 @@ func (svg *SVG) LinearGradient(id string, x1, y1, x2, y2 float32, sc []Offcolor)
 // (fx, fy) define the location of the focal point of the light source.
 // The stop color sequence defined in sc.
 // Coordinates are expressed as percentages.
-func (svg *SVG) RadialGradient(id string, cx, cy, r, fx, fy float32, sc []Offcolor) {
+func (svg *SVG) RadialGradient(id string, cx, cy, r, fx, fy float64, sc []Offcolor) {
 	svg.printf("<radialGradient id=\"%s\" cx=\"%f%%\" cy=\"%f%%\" r=\"%f%%\" fx=\"%f%%\" fy=\"%f%%\">\n",
 		id, pct(cx), pct(cy), pct(r), pct(fx), pct(fy))
 	svg.stopcolor(sc)
@@ -556,7 +556,7 @@ func (svg *SVG) FeCompEnd() {
 
 // FeComposite specifies a feComposite filter primitive
 // Standard reference: http://www.w3.org/TR/SVG11/filters.html#feCompositeElement
-func (svg *SVG) FeComposite(fs Filterspec, operator string, k1, k2, k3, k4 float32, s ...string) {
+func (svg *SVG) FeComposite(fs Filterspec, operator string, k1, k2, k3, k4 float64, s ...string) {
 	switch operator {
 	case "over", "in", "out", "atop", "xor", "arithmetic":
 		break
@@ -569,7 +569,7 @@ func (svg *SVG) FeComposite(fs Filterspec, operator string, k1, k2, k3, k4 float
 
 // FeConvolveMatrix specifies a feConvolveMatrix filter primitive
 // Standard referencd: http://www.w3.org/TR/SVG11/filters.html#feConvolveMatrixElement
-func (svg *SVG) FeConvolveMatrix(fs Filterspec, matrix [9]float32, s ...string) {
+func (svg *SVG) FeConvolveMatrix(fs Filterspec, matrix [9]float64, s ...string) {
 	svg.printf(`<feConvolveMatrix %s kernelMatrix="%f %f %f %f %f %f %f %f %f" %s`,
 		fsattr(fs),
 		matrix[0], matrix[1], matrix[2],
@@ -617,9 +617,9 @@ func (svg *SVG) FeFlood(fs Filterspec, color string, opacity float64, s ...strin
 
 // FeFuncLinear specifies a linear style function for the feFunc{R|G|B|A} filter element
 // Standard reference: http://www.w3.org/TR/SVG11/filters.html#feComponentTransferElement
-func (svg *SVG) FeFuncLinear(channel string, slope, float32ercept float64) {
-	svg.printf(`<feFunc%s type="linear" slope="%g" float32ercept="%g"%s`,
-		imgchannel(channel), slope, float32ercept, emptyclose)
+func (svg *SVG) FeFuncLinear(channel string, slope, float64ercept float64) {
+	svg.printf(`<feFunc%s type="linear" slope="%g" float64ercept="%g"%s`,
+		imgchannel(channel), slope, float64ercept, emptyclose)
 }
 
 // FeFuncGamma specifies the curve values for gamma correction for the feFunc{R|G|B|A} filter element
@@ -688,7 +688,7 @@ func (svg *SVG) FeMorphology(fs Filterspec, operator string, xradius, yradius fl
 
 // FeOffset specifies the feOffset filter primitive
 // Standard reference: http://www.w3.org/TR/SVG11/filters.html#feOffsetElement
-func (svg *SVG) FeOffset(fs Filterspec, dx, dy float32, s ...string) {
+func (svg *SVG) FeOffset(fs Filterspec, dx, dy float64, s ...string) {
 	svg.printf(`<feOffset %s dx="%f" dy="%f" %s`,
 		fsattr(fs), dx, dy, endstyle(s, emptyclose))
 }
@@ -703,7 +703,7 @@ func (svg *SVG) FePointLight(x, y, z float64, s ...string) {
 // FeSpecularLighting specifies a specular lighting filter primitive,
 // a container for light source elements, end with SpecularEnd()
 // Standard reference: http://www.w3.org/TR/SVG11/filters.html#feSpecularLightingElement
-func (svg *SVG) FeSpecularLighting(fs Filterspec, scale, constant float64, exponent float32, color string, s ...string) {
+func (svg *SVG) FeSpecularLighting(fs Filterspec, scale, constant float64, exponent float64, color string, s ...string) {
 	svg.printf(`<feSpecularLighting %s surfaceScale="%g" specularConstant="%g" specularExponent="%f" lighting-color="%s" %s`,
 		fsattr(fs), scale, constant, exponent, color, endstyle(s, ">\n"))
 }
@@ -729,7 +729,7 @@ func (svg *SVG) FeTile(fs Filterspec, in string, s ...string) {
 
 // FeTurbulence specifies a turbulence filter primitive
 // Standard reference: http://www.w3.org/TR/SVG11/filters.html#feTurbulenceElement
-func (svg *SVG) FeTurbulence(fs Filterspec, ftype string, bfx, bfy float64, octaves float32, seed int64, stitch bool, s ...string) {
+func (svg *SVG) FeTurbulence(fs Filterspec, ftype string, bfx, bfy float64, octaves float64, seed int64, stitch bool, s ...string) {
 	if bfx < 0 || bfx > 1 {
 		bfx = 0
 	}
@@ -818,52 +818,52 @@ func (svg *SVG) Sepia() {
 
 // Animate animates the specified link, using the specified attribute
 // The animation starts at coordinate from, terminates at to, and repeats as specified
-func (svg *SVG) Animate(link, attr string, from, to float32, duration float64, repeat float32, s ...string) {
+func (svg *SVG) Animate(link, attr string, from, to float64, duration float64, repeat int, s ...string) {
 	svg.printf(`<animate %s attributeName="%s" from="%f" to="%f" dur="%gs" repeatCount="%s" %s`,
 		href(link), attr, from, to, duration, repeatString(repeat), endstyle(s, emptyclose))
 }
 
 // AnimateMotion animates the referenced object along the specified path
-func (svg *SVG) AnimateMotion(link, path string, duration float64, repeat float32, s ...string) {
+func (svg *SVG) AnimateMotion(link, path string, duration float64, repeat int, s ...string) {
 	svg.printf(`<animateMotion %s dur="%gs" repeatCount="%s" %s<mpath %s/></animateMotion>
 `, href(link), duration, repeatString(repeat), endstyle(s, ">"), href(path))
 }
 
 // AnimateTransform animates in the context of SVG transformations
-func (svg *SVG) AnimateTransform(link, ttype, from, to string, duration float64, repeat float32, s ...string) {
+func (svg *SVG) AnimateTransform(link, ttype, from, to string, duration float64, repeat int, s ...string) {
 	svg.printf(`<animateTransform %s attributeName="transform" type="%s" from="%s" to="%s" dur="%gs" repeatCount="%s" %s`,
 		href(link), ttype, from, to, duration, repeatString(repeat), endstyle(s, emptyclose))
 }
 
 // AnimateTranslate animates the translation transformation
-func (svg *SVG) AnimateTranslate(link string, fx, fy, tx, ty float32, duration float64, repeat float32, s ...string) {
+func (svg *SVG) AnimateTranslate(link string, fx, fy, tx, ty float64, duration float64, repeat int, s ...string) {
 	svg.AnimateTransform(link, "translate", coordpair(fx, fy), coordpair(tx, ty), duration, repeat, s...)
 }
 
 // AnimateRotate animates the rotation transformation
-func (svg *SVG) AnimateRotate(link string, fs, fc, fe, ts, tc, te float32, duration float64, repeat float32, s ...string) {
+func (svg *SVG) AnimateRotate(link string, fs, fc, fe, ts, tc, te float64, duration float64, repeat int, s ...string) {
 	svg.AnimateTransform(link, "rotate", sce(fs, fc, fe), sce(ts, tc, te), duration, repeat, s...)
 }
 
 // AnimateScale animates the scale transformation
-func (svg *SVG) AnimateScale(link string, from, to, duration float64, repeat float32, s ...string) {
+func (svg *SVG) AnimateScale(link string, from, to, duration float64, repeat int, s ...string) {
 	svg.AnimateTransform(link, "scale", fmt.Sprintf("%g", from), fmt.Sprintf("%g", to), duration, repeat, s...)
 }
 
 // AnimateSkewX animates the skewX transformation
-func (svg *SVG) AnimateSkewX(link string, from, to, duration float64, repeat float32, s ...string) {
+func (svg *SVG) AnimateSkewX(link string, from, to, duration float64, repeat int, s ...string) {
 	svg.AnimateTransform(link, "skewX", fmt.Sprintf("%g", from), fmt.Sprintf("%g", to), duration, repeat, s...)
 }
 
 // AnimateSkewY animates the skewY transformation
-func (svg *SVG) AnimateSkewY(link string, from, to, duration float64, repeat float32, s ...string) {
+func (svg *SVG) AnimateSkewY(link string, from, to, duration float64, repeat int, s ...string) {
 	svg.AnimateTransform(link, "skewY", fmt.Sprintf("%g", from), fmt.Sprintf("%g", to), duration, repeat, s...)
 }
 
 // Utility
 
 // Grid draws a grid at the specified coordinate, dimensions, and spacing, with optional style.
-func (svg *SVG) Grid(x float32, y float32, w float32, h float32, n float32, s ...string) {
+func (svg *SVG) Grid(x float64, y float64, w float64, h float64, n float64, s ...string) {
 
 	if len(s) > 0 {
 		svg.Gstyle(s[0])
@@ -884,20 +884,20 @@ func (svg *SVG) Grid(x float32, y float32, w float32, h float32, n float32, s ..
 // Support functions
 
 // coordpair returns a coordinate pair as a string
-func coordpair(x, y float32) string {
+func coordpair(x, y float64) string {
 	return fmt.Sprintf("%f %f", x, y)
 }
 
 // sce makes start, center, end coordinates string for animate transformations
-func sce(start, center, end float32) string {
+func sce(start, center, end float64) string {
 	return fmt.Sprintf("%f %f %f", start, center, end)
 }
 
 // repeatString computes the repeat string for animation methods
-// repeat <= 0 --> "indefinite", otherwise the float32eger string
-func repeatString(n float32) string {
+// repeat <= 0 --> "indefinite", otherwise the float64eger string
+func repeatString(n int) string {
 	if n > 0 {
-		return fmt.Sprintf("%f", n)
+		return fmt.Sprintf("%d", n)
 	}
 	return "indefinite"
 }
@@ -911,7 +911,7 @@ func style(s string) string {
 }
 
 // pp returns a series of polygon points
-func (svg *SVG) pp(x []float32, y []float32, tag string) {
+func (svg *SVG) pp(x []float64, y []float64, tag string) {
 	svg.print(tag)
 	if len(x) != len(y) {
 		svg.print(" ")
@@ -950,7 +950,7 @@ func (svg *SVG) tt(tag string, s string) {
 }
 
 // poly compiles the polygon element
-func (svg *SVG) poly(x []float32, y []float32, tag string, s ...string) {
+func (svg *SVG) poly(x []float64, y []float64, tag string, s ...string) {
 	svg.pp(x, y, "<"+tag+" points=\"")
 	svg.print(`" ` + endstyle(s, "/>\n"))
 }
@@ -964,7 +964,7 @@ func onezero(flag bool) string {
 }
 
 // pct returns a percetage, capped at 100
-func pct(n float32) float32 {
+func pct(n float64) float64 {
 	if n > 100 {
 		return 100
 	}
@@ -996,22 +996,22 @@ func skewY(angle float64) string { return fmt.Sprintf(`skewY(%g)`, angle) }
 func rotate(r float64) string { return fmt.Sprintf(`rotate(%g)`, r) }
 
 // translate returns the translate string for the transform
-func translate(x, y float32) string { return fmt.Sprintf(`translate(%f,%f)`, x, y) }
+func translate(x, y float64) string { return fmt.Sprintf(`translate(%f,%f)`, x, y) }
 
 // coord returns a coordinate string
-func coord(x float32, y float32) string { return fmt.Sprintf(`%f,%f`, x, y) }
+func coord(x float64, y float64) string { return fmt.Sprintf(`%f,%f`, x, y) }
 
 // ptag returns the beginning of the path element
-func ptag(x float32, y float32) string { return fmt.Sprintf(`<path d="M%s`, coord(x, y)) }
+func ptag(x float64, y float64) string { return fmt.Sprintf(`<path d="M%s`, coord(x, y)) }
 
 // loc returns the x and y coordinate attributes
-func loc(x float32, y float32) string { return fmt.Sprintf(`x="%f" y="%f"`, x, y) }
+func loc(x float64, y float64) string { return fmt.Sprintf(`x="%f" y="%f"`, x, y) }
 
 // href returns the href name and attribute
 func href(s string) string { return fmt.Sprintf(`xlink:href="%s"`, s) }
 
 // dim returns the dimension string (x, y coordinates and width, height)
-func dim(x float32, y float32, w float32, h float32) string {
+func dim(x float64, y float64, w float64, h float64) string {
 	return fmt.Sprintf(`x="%f" y="%f" width="%f" height="%f"`, x, y, w, h)
 }
 
